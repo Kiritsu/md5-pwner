@@ -2,9 +2,14 @@ version: '3.7'
 
 services:
   webapp:
+    ports: 
+      - "80:80"
+    environment:
+      - ASPNETCORE_URLS=http://+:80
     build:
       context: .
       dockerfile: ./docker/webapp/Dockerfile
     restart: always
     volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
       - .:/webapp
