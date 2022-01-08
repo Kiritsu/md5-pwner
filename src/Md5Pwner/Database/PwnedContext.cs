@@ -1,4 +1,6 @@
-﻿using LiteDB;
+﻿using System;
+using LiteDB;
+using Microsoft.Extensions.Configuration;
 
 namespace Md5Pwner.Database
 {
