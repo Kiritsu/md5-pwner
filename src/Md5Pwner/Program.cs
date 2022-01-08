@@ -34,6 +34,7 @@ app.UseRouting();
 app.UseAuthorization();
 app.MapRazorPages();
 
-app.Services.GetRequiredService<PwnedWsServer>().Start();
-
+var wsServer = app.Services.GetRequiredService<PwnedWsServer>();
+wsServer.Start();
 app.Run();
+wsServer.Stop();
