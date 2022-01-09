@@ -1,0 +1,36 @@
+﻿@page "/"
+@using Md5Pwner.Services
+
+@inject PwnedWsService WsService
+
+<PageTitle>Index</PageTitle>
+
+<h1>MD5 Pwner 9000</h1>
+
+@if (!slaveCount.HasValue || !crackedHashCount.HasValue)
+{
+    <p><em>Loading data...</em></p>
+}
+else
+{
+    <p>The websocket server is running and @slaveCount slaves are connected and ready!</p>
+    <p>There are @crackedHashCount hashes that have been solved already.</p>
+}
+
+<button onclick=@RefreshData>Refresh stats</button>
+
+@code {
+    private long? slaveCount;
+    private long? crackedHashCount;
+
+    void RefreshData()
+    {
+        slaveCount = WsService.GetSlaveCount();
+        crackedHashCount = WsService.GetCrackedHashesCount();
+    }
+
+    protected override void OnInitialized()
+    {
+        RefreshData();
+    }
+}

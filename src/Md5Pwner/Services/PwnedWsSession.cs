@@ -7,10 +7,12 @@ namespace Md5Pwner.Services
     public class PwnedWsSession : WsSession
     {
         private readonly ILogger<PwnedWsSession> _logger;
+        private readonly PwnedWsService _service;
 
-        public PwnedWsSession(ILogger<PwnedWsSession> logger, PwnedWsServer server) : base(server)
+        public PwnedWsSession(ILogger<PwnedWsSession> logger, PwnedWsServer server, PwnedWsService service) : base(server)
         {
             _logger = logger;
+            _service = service;
         }
 
         public override void OnWsDisconnected()
@@ -33,6 +35,7 @@ namespace Md5Pwner.Services
                 var elements = message.Split(' ');
 
                 _logger.LogInformation("Client {Id} cracked MD5 hash: {MD5} {Solution}", Id, elements[1], elements[2]);
+                _service.SaveSolution(new() { Hash = elements[1], Value = elements[2] });
             }
         }
 

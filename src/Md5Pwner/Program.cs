@@ -15,11 +15,12 @@ builder.Host.UseSerilog((x, y) => y
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
 
 builder.Services.AddSingleton<PwnedContext>();
 builder.Services.AddSingleton<PwnedWsServer>();
 builder.Services.AddTransient<PwnedWsSession>();
-builder.Services.AddHostedService<PwnedWsService>();
+builder.Services.AddSingleton<PwnedWsService>();
 
 var app = builder.Build();
 
@@ -31,10 +32,10 @@ if (!app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 app.UseRouting();
-app.UseAuthorization();
-app.MapRazorPages();
+app.MapBlazorHub();
+app.MapFallbackToPage("/_Host");
 
-var wsServer = app.Services.GetRequiredService<PwnedWsServer>();
-wsServer.Start();
+var wsService = app.Services.GetRequiredService<PwnedWsService>();
+wsService.StartWs();
 app.Run();
-wsServer.Stop();
+wsService.StopWs();
