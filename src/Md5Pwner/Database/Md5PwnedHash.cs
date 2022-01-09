@@ -1,4 +1,5 @@
-﻿using LiteDB;
+﻿using System;
+using LiteDB;
 
 namespace Md5Pwner.Database
 {
@@ -17,5 +18,20 @@ namespace Md5Pwner.Database
         /// Gets or sets the value of the hash.
         /// </summary>
         public string Value { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the date time the hash was found.
+        /// </summary>
+        public DateTime FoundAt { get; set; }
+
+        /// <summary>
+        /// Gets or sets the date time the hash cracking was initiated.
+        /// </summary>
+        public DateTime InitiatedAt { get; set; }
+
+        /// <summary>
+        /// Gets the elapsed time.
+        /// </summary>
+        public TimeSpan ElapsedTime => FoundAt - InitiatedAt;
     }
 }

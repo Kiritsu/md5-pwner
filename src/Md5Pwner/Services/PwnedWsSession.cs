@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using NetCoreServer;
 
@@ -35,7 +36,7 @@ namespace Md5Pwner.Services
                 var elements = message.Split(' ');
 
                 _logger.LogInformation("Client {Id} cracked MD5 hash: {MD5} {Solution}", Id, elements[1], elements[2]);
-                _service.SaveSolution(new() { Hash = elements[1], Value = elements[2] });
+                _service.SaveSolution(new() { Hash = elements[1], Value = elements[2], FoundAt = DateTime.Now });
             }
         }
 

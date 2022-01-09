@@ -21,6 +21,7 @@ builder.Services.AddSingleton<PwnedContext>();
 builder.Services.AddSingleton<PwnedWsServer>();
 builder.Services.AddTransient<PwnedWsSession>();
 builder.Services.AddSingleton<PwnedWsService>();
+builder.Services.AddHostedService<PwningService>();
 
 var app = builder.Build();
 

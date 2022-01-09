@@ -1,5 +1,7 @@
 ﻿@page "/"
+@using Md5Pwner.Database
 @using Md5Pwner.Services
+@using System.Threading
 
 @inject PwnedWsService WsService
 
@@ -17,20 +19,108 @@ else
     <p>There are @crackedHashCount hashes that have been solved already.</p>
 }
 
-<button onclick=@RefreshData>Refresh stats</button>
+<p>
+    <button onclick=@(() => RefreshData())>Refresh stats</button>
+</p>
+
+<p>
+    <button onclick=@(() => ScaleSlaves())>Scale slaves</button>
+    <input @bind="inputSlaveCount" />
+</p>
+
+<p>
+    <button onclick=@(() => CrackMd5())>Crack MD5</button>
+    <input @bind="md5Hash" />
+</p>
+
+<p>Cracked hashes</p>
+<table>
+    <tr>
+        <td>Hash</td>
+        <td>Initiated At</td>
+        <td>Found At</td>
+        <td>Value</td>
+    </tr>
+    @if (pwnedHashes is not null)
+    {
+        @foreach (var hash in pwnedHashes)
+        {
+            <tr>
+                <td>@hash.Hash</td>
+                <td>@hash.InitiatedAt</td>
+                <td>@hash.FoundAt</td>
+                <td>@hash.Value</td>
+            </tr>
+        }
+    }
+</table>
+
+<p>Pending hashes</p>
+<table>
+    <tr>
+        <td>Hash</td>
+        <td>Initiated At</td>
+    </tr>
+    @if (pendingHashes is not null)
+    {
+        @foreach (var hash in pendingHashes)
+        {
+            <tr>
+                <td>@hash.Hash</td>
+                <td>@hash.InitiatedAt</td>
+            </tr>
+        }
+    }
+</table>
+
 
 @code {
     private long? slaveCount;
     private long? crackedHashCount;
 
+    private int? inputSlaveCount;
+
+    private string? md5Hash;
+
+    private List<Md5PwnedHash>? pwnedHashes;
+    private List<Md5PendingHash>? pendingHashes;
+
+    void CrackMd5()
+    {
+        WsService.AddToQueue(md5Hash ?? "");
+    }
+
+    void ScaleSlaves()
+    {
+        WsService.ScaleSlaves(inputSlaveCount ?? 0);
+        RefreshData();
+    }
+
     void RefreshData()
     {
         slaveCount = WsService.GetSlaveCount();
         crackedHashCount = WsService.GetCrackedHashesCount();
+
+        StateHasChanged();
+    }
+
+    void RefreshTables()
+    {
+        pwnedHashes = WsService.PwnedHashes.ToList();
+        pendingHashes = WsService.PendingHashes.ToList();
+
+        StateHasChanged();
     }
 
     protected override void OnInitialized()
     {
+        new Timer(new TimerCallback(_ =>
+        {
+            InvokeAsync(RefreshTables);
+            InvokeAsync(RefreshData);
+        }), null, 1000, 1000);
+
         RefreshData();
+        RefreshTables();
     }
 }
