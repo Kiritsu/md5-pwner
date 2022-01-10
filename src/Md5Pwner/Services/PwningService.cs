@@ -7,6 +7,9 @@ using Microsoft.Extensions.Hosting;
 
 namespace Md5Pwner.Services
 {
+    /// <summary>
+    /// Represents a background service that attempts to ask clients to resolves the different hashes when possible.
+    /// </summary>
     public class PwningService : BackgroundService
     {
         private readonly PwnedWsService _service;
@@ -84,6 +87,7 @@ namespace Md5Pwner.Services
             _wsServer = wsServer;
         }
 
+        /// <inheritdoc/>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
@@ -93,6 +97,7 @@ namespace Md5Pwner.Services
                 var sessionCount = _wsServer.Sessions.Count;
                 if (sessionCount == 0)
                 {
+                    // if no slave are available, just yield...
                     continue;
                 }
 
@@ -100,11 +105,14 @@ namespace Md5Pwner.Services
                 var current = queue.FirstOrDefault();
                 if (current == null || current.Processing)
                 {
+                    // if we already have an hash that is being processed, just yield...
                     continue;
                 }
 
+                // marks the hash as being processed.
                 current.Processing = true;
 
+                // load-balances the different slaves to equally brute-force the hash.
                 var beginNumber = GetNumber(_service.Begin);
                 var endNumber = GetNumber(_service.End);
 
@@ -112,12 +120,17 @@ namespace Md5Pwner.Services
                 var lastEnd = beginNumber;
                 for (var i = 0; i < sessionCount; i++)
                 {
+                    // send its instruction to each available slave.
                     _wsServer.Sessions[i].SendSearch(current.Hash, lastEnd.ToString(), (lastEnd + perSession).ToString());
                     lastEnd += perSession;
                 }
             }
         }
 
+        /// <summary>
+        /// Gets the number for the slave to search properly within a range depending on the given string.
+        /// </summary>
+        /// <param name="word">String to transform to a number.</param>
         public static long GetNumber(string word)
         {
             var number = 0L;

@@ -25,15 +25,21 @@ else
 
 <p>
     <button class="btn btn-primary" onclick=@(() => ScaleSlaves())>Scale slaves</button>
-    <input @bind="inputSlaveCount" />
+    <input @bind="inputSlaveCount" placeholder="Amount of slaves to scale to"/>
 </p>
 
 <p>
     <button class="btn btn-primary" onclick=@(() => CrackMd5())>Crack MD5</button>
-    <input @bind="md5Hash" />
-    <input @bind="begin" />
-    <input @bind="end" />
+    <input @bind="md5Hash" placeholder="Valid MD5 hash"/>
+    <input @bind="begin" placeholder="Begin letters"/>
+    <input @bind="end" placeholder="End letters"/>
 </p>
+
+<p>
+    <button class="btn btn-primary" onclick=@(() => Abort())>Force abort</button>
+    <input @bind="hash" placeholder="MD5 hash to abort"/>
+</p>
+
 
 <p>Cracked hashes</p>
 <table class="table">
@@ -95,8 +101,19 @@ else
     private string? begin = "A";
     private string? end = "9999";
 
+    private string? hash = "";
+
     private List<Md5PwnedHash>? pwnedHashes;
     private List<Md5PendingHash>? pendingHashes;
+
+    void Abort()
+    {
+        WsService.Abort(hash);
+        RefreshData();
+        RefreshTables();
+
+        StateHasChanged();
+    }
 
     void CrackMd5()
     {
@@ -107,7 +124,11 @@ else
     void ScaleSlaves()
     {
         WsService.ScaleSlaves(inputSlaveCount ?? 0);
+
         RefreshData();
+        RefreshTables();
+
+        StateHasChanged();
     }
 
     void RefreshData()
