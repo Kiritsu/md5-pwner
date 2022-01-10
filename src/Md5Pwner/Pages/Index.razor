@@ -20,57 +20,68 @@ else
 }
 
 <p>
-    <button onclick=@(() => RefreshData())>Refresh stats</button>
+    <button class="btn btn-primary" onclick=@(() => RefreshData())>Refresh stats</button>
 </p>
 
 <p>
-    <button onclick=@(() => ScaleSlaves())>Scale slaves</button>
+    <button class="btn btn-primary" onclick=@(() => ScaleSlaves())>Scale slaves</button>
     <input @bind="inputSlaveCount" />
 </p>
 
 <p>
-    <button onclick=@(() => CrackMd5())>Crack MD5</button>
+    <button class="btn btn-primary" onclick=@(() => CrackMd5())>Crack MD5</button>
     <input @bind="md5Hash" />
+    <input @bind="begin" />
+    <input @bind="end" />
 </p>
 
 <p>Cracked hashes</p>
-<table>
-    <tr>
-        <td>Hash</td>
-        <td>Initiated At</td>
-        <td>Found At</td>
-        <td>Value</td>
-    </tr>
-    @if (pwnedHashes is not null)
-    {
-        @foreach (var hash in pwnedHashes)
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Hash</th>
+            <th scope="col">Initiated At</th>
+            <th scope="col">Found At</th>
+            <th scope="col">Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (pwnedHashes is not null)
         {
-            <tr>
-                <td>@hash.Hash</td>
-                <td>@hash.InitiatedAt</td>
-                <td>@hash.FoundAt</td>
-                <td>@hash.Value</td>
-            </tr>
+            @foreach (var hash in pwnedHashes)
+            {
+                <tr>
+                    <td scope="row">@hash.Hash</td>
+                    <td>@hash.InitiatedAt</td>
+                    <td>@hash.FoundAt</td>
+                    <td>@hash.Value</td>
+                </tr>
+            }
         }
-    }
+    </tbody>
 </table>
-
+<br />
+<br />
 <p>Pending hashes</p>
-<table>
-    <tr>
-        <td>Hash</td>
-        <td>Initiated At</td>
-    </tr>
-    @if (pendingHashes is not null)
-    {
-        @foreach (var hash in pendingHashes)
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Hash</th>
+            <th scope="col">Initiated At</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (pendingHashes is not null)
         {
-            <tr>
-                <td>@hash.Hash</td>
-                <td>@hash.InitiatedAt</td>
-            </tr>
+            @foreach (var hash in pendingHashes)
+            {
+                <tr>
+                    <td scope="row">@hash.Hash</td>
+                    <td>@hash.InitiatedAt</td>
+                </tr>
+            }
         }
-    }
+    </tbody>
 </table>
 
 
@@ -81,12 +92,15 @@ else
     private int? inputSlaveCount;
 
     private string? md5Hash;
+    private int? begin = 0;
+    private int? end = 15018569;
 
     private List<Md5PwnedHash>? pwnedHashes;
     private List<Md5PendingHash>? pendingHashes;
 
     void CrackMd5()
     {
+        WsService.SetRange(begin ?? 0, end ?? 15018569);
         WsService.AddToQueue(md5Hash ?? "");
     }
 

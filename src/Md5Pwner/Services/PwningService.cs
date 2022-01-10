@@ -20,17 +20,22 @@ namespace Md5Pwner.Services
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(2000, stoppingToken);
+                await Task.Delay(500, stoppingToken);
+
+                if (_wsServer.Sessions.Count == 0)
+                {
+                    continue;
+                }
 
                 var queue = _service.PendingHashes;
-                var current = queue.FirstOrDefault(x => !x.Processing);
+                var current = queue.FirstOrDefault();
                 if (current == null || current.Processing)
                 {
                     continue;
                 }
 
                 current.Processing = true;
-                _wsServer.Sessions.FirstOrDefault()?.SendSearch(current.Hash, "0", "15018569");
+                _wsServer.Sessions.FirstOrDefault()!.SendSearch(current.Hash, _service.Begin.ToString(), _service.End.ToString());
             }
         }
     }

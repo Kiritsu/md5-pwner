@@ -15,7 +15,7 @@ services:
       - .:/webapp
 
   pwner:
-    image: "servuc/hash_extractor:latest"
-    command: ./hash_extractor s ws://webapp:3000
+    image: "itytophile/hash-slave:latest"
+    command: ws://webapp:3000/ws
     deploy:
       replicas: 0

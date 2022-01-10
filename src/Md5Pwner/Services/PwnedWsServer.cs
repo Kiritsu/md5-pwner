@@ -1,36 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using NetCoreServer;
+using WebSocketSharp.Server;
 
 namespace Md5Pwner.Services
 {
-    public class PwnedWsServer : WsServer
+    public class PwnedWsServer
     {
-        private readonly IServiceProvider _services;
-        private readonly ILogger<PwnedWsServer> _logger;
+        public WebSocketServer Server { get; init; }
+        public List<PwnedWsSession> Sessions { get; init; }
 
-        public new List<PwnedWsSession> Sessions { get; init; }
-
-        public PwnedWsServer(IServiceProvider services, ILogger<PwnedWsServer> logger, IConfiguration configuration) 
-            : base(new IPEndPoint(IPAddress.Any, int.Parse(configuration["WsServerPort"])))
+        public PwnedWsServer(IServiceProvider services, IConfiguration configuration) 
         {
-            _services = services;
-            _logger = logger;
-
             Sessions = new List<PwnedWsSession>();
-        }
 
-        protected override TcpSession CreateSession()
-        {
-            _logger.LogDebug("Initiating requested WS session");
-
-            var session = _services.GetRequiredService<PwnedWsSession>();
-            Sessions.Add(session);
-            return session;
+            Server = new WebSocketServer($"ws://{configuration["WsServerHost"]}:{configuration["WsServerPort"]}");
+            Server.AddWebSocketService("/ws", () => services.GetRequiredService<PwnedWsSession>());
         }
     }
 }

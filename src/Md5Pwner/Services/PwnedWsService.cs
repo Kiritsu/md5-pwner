@@ -15,7 +15,10 @@ namespace Md5Pwner.Services
         private readonly PwnedContext _dbContext;
         private readonly ILogger<PwnedWsService> _logger;
 
-        public ConcurrentQueue<Md5PendingHash> PendingHashes { get; init; }
+        public int Begin { get; private set; }
+        public int End { get; private set; }
+
+        public List<Md5PendingHash> PendingHashes { get; init; }
 
         public List<Md5PwnedHash> PwnedHashes { get; init; }
 
@@ -25,23 +28,23 @@ namespace Md5Pwner.Services
             _dbContext = dbContext;
             _logger = logger;
 
-            PendingHashes = new ConcurrentQueue<Md5PendingHash>();
+            PendingHashes = new List<Md5PendingHash>();
             PwnedHashes = new List<Md5PwnedHash>();
         }
 
         public void StartWs()
         {
-            _wsServer.Start();
+            _wsServer.Server.Start();
         }
 
         public void StopWs()
         {
-            _wsServer.Stop();
+            _wsServer.Server.Stop();
         }
 
         public long GetSlaveCount()
         {
-            return _wsServer.ConnectedSessions;
+            return _wsServer.Sessions?.Count ?? 0;
         }
 
         public long GetCrackedHashesCount()
@@ -67,6 +70,12 @@ namespace Md5Pwner.Services
             process!.WaitForExit();
         }
 
+        public void SetRange(int begin, int end)
+        {
+            Begin = begin;
+            End = end;
+        }
+
         public void AddToQueue(string md5)
         {
             if (string.IsNullOrWhiteSpace(md5))
@@ -74,7 +83,15 @@ namespace Md5Pwner.Services
                 return;
             }
 
-            PendingHashes.Enqueue(new() { Hash = md5, InitiatedAt = DateTime.Now });
+            var existing = _dbContext.Hashes.FindOne(x => x.Hash == md5);
+            if (existing is not null)
+            {
+                _logger.LogInformation("Hash {Hash} is already solved and present in database with value {Value}", md5, existing.Value);
+                PwnedHashes.Add(existing);
+                return;
+            }
+
+            PendingHashes.Add(new() { Hash = md5, InitiatedAt = DateTime.Now });
         }
 
         public void SaveSolution(Md5PwnedHash hash)
@@ -88,6 +105,12 @@ namespace Md5Pwner.Services
             if (pendingEquivalent is not null)
             {
                 hash.InitiatedAt = pendingEquivalent.InitiatedAt;
+                PendingHashes.Remove(pendingEquivalent);
+            }
+
+            foreach (var session in _wsServer.Sessions)
+            {
+                session.SendStop();
             }
 
             _logger.LogInformation("Saving solution {Solution} for hash {Hash}", hash.Value, hash.Hash);
