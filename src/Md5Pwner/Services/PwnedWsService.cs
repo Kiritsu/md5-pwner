@@ -15,8 +15,8 @@ namespace Md5Pwner.Services
         private readonly PwnedContext _dbContext;
         private readonly ILogger<PwnedWsService> _logger;
 
-        public int Begin { get; private set; }
-        public int End { get; private set; }
+        public string Begin { get; private set; }
+        public string End { get; private set; }
 
         public List<Md5PendingHash> PendingHashes { get; init; }
 
@@ -70,7 +70,7 @@ namespace Md5Pwner.Services
             process!.WaitForExit();
         }
 
-        public void SetRange(int begin, int end)
+        public void SetRange(string begin, string end)
         {
             Begin = begin;
             End = end;

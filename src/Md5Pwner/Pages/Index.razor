@@ -92,15 +92,15 @@ else
     private int? inputSlaveCount;
 
     private string? md5Hash;
-    private int? begin = 0;
-    private int? end = 15018569;
+    private string? begin = "A";
+    private string? end = "9999";
 
     private List<Md5PwnedHash>? pwnedHashes;
     private List<Md5PendingHash>? pendingHashes;
 
     void CrackMd5()
     {
-        WsService.SetRange(begin ?? 0, end ?? 15018569);
+        WsService.SetRange(begin ?? "A", end ?? "9999");
         WsService.AddToQueue(md5Hash ?? "");
     }
 
