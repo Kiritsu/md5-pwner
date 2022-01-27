@@ -1,5 +1,7 @@
 # Md5Pwner
 
+[![Build and Run tests](https://github.com/Kiritsu/md5-pwner/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Kiritsu/md5-pwner/actions/workflows/dotnet.yml)
+
 ## How to use
 
 ### Clone
