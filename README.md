@@ -1,6 +1,7 @@
 # Md5Pwner
 
 [![Build and Run tests](https://github.com/Kiritsu/md5-pwner/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Kiritsu/md5-pwner/actions/workflows/dotnet.yml)
+[![Docker Image CI](https://github.com/Kiritsu/md5-pwner/actions/workflows/docker-image.yml/badge.svg)](https://github.com/Kiritsu/md5-pwner/actions/workflows/docker-image.yml)
 
 ## How to use
 
