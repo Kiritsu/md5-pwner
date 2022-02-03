@@ -16,6 +16,6 @@ services:
 
   pwner:
     image: "itytophile/hash-slave:latest"
-    command: ws://webapp:3000/ws
+    command: /slave ws://webapp:3000/ws
     deploy:
       replicas: 0
