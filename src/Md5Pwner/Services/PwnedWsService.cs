@@ -21,12 +21,12 @@ namespace Md5Pwner.Services
         /// <summary>
         /// Gets the begin range tell the slaves from where to start brute forcing.
         /// </summary>
-        public string Begin { get; private set; } = null!;
+        public string Begin { get; private set; } = "A";
 
         /// <summary>
         /// Gets the end range tell the slaves from where to stop brute forcing.
         /// </summary>
-        public string End { get; private set; } = null!;
+        public string End { get; private set; } = "9999";
 
         /// <summary>
         /// Gets the different hashes pending for being cracked.

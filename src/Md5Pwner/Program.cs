@@ -1,3 +1,4 @@
+using System;
 using Md5Pwner.Database;
 using Md5Pwner.Services;
 using Microsoft.AspNetCore.Builder;
@@ -17,11 +18,13 @@ builder.Host.UseSerilog((x, y) => y
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
+builder.Services.AddSingleton(x => Random.Shared);
 builder.Services.AddSingleton<PwnedContext>();
 builder.Services.AddSingleton<PwnedWsServer>();
 builder.Services.AddTransient<PwnedWsSession>();
 builder.Services.AddSingleton<PwnedWsService>();
 builder.Services.AddHostedService<PwningService>();
+builder.Services.AddHostedService<PwningGeneratorService>();
 
 var app = builder.Build();
 
