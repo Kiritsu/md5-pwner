@@ -14,6 +14,8 @@ namespace Md5Pwner.Services
     /// </summary>
     public class PwnedWsService
     {
+        private readonly object _lock = new();
+
         private readonly PwnedWsServer _wsServer;
         private readonly PwnedContext _dbContext;
         private readonly ILogger<PwnedWsService> _logger;
@@ -187,10 +189,18 @@ namespace Md5Pwner.Services
             _logger.LogInformation("Saving solution {Solution} for hash {Hash}", hash.Value, hash.Hash);
             _dbContext.Hashes.Insert(hash);
 
-            PwnedHashes.Add(hash);
-            if (PwnedHashes.Count == 20)
+            ThreadSafeAdd(hash);
+        }
+
+        private void ThreadSafeAdd(Md5PwnedHash pwnedHash)
+        {
+            lock (_lock)
             {
-                PwnedHashes.RemoveAt(0);
+                PwnedHashes.Add(pwnedHash);
+                while (PwnedHashes.Count > 20)
+                {
+                    PwnedHashes.RemoveAt(0);
+                }
             }
         }
     }
