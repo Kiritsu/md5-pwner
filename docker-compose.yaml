@@ -1,5 +1,8 @@
 version: '3.7'
 
+volumes:
+  db-volume:
+
 services:
   webapp:
     ports: 
@@ -12,7 +15,7 @@ services:
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - .:/webapp
+      - db-volume:/db
 
   pwner:
     image: "itytophile/hash-slave:latest"
